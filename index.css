@@ -37,7 +37,6 @@ video {
   align-content: center;
   justify-content: center;
   gap: 5vh;
-  pointer-events: none;
 }
 
 .selection-button {

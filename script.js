@@ -7,28 +7,26 @@ class Cursor {
   }
   
   setPosition(x,y) {
+    this.x = x
     this.element.style.left = x + 'px';
+    this.y = y
     this.element.style.top = y + 'px';
   }
   
   getCentre() {
     const rect = this.element.getBoundingClientRect();
-    this.x =  rect.left + rect.width / 2;
-    this.y = rect.top + rect.height / 2;
     return {
-      x: this.x,
-      y: this.y
+      x: rect.left + rect.width / 2,
+      y: rect.top + rect.height / 2
     };
   }
   
   setState(icon) {
     if (icon === 'pointing') {
-      this.show();
       this.element.style.backgroundImage = "url('assets/pointerhand.png')";
       this.state = 'pointing';
     }
     else if (icon === 'default') {
-      this.show();
       this.element.style.backgroundImage = "url('assets/cursor.png')";
       this.state = 'default';
     }
@@ -40,7 +38,7 @@ class Cursor {
     handleInteractions();
   }
   
-  show() {
+  show(state) {
     this.element.style.display = 'block';
   }
 }
@@ -58,8 +56,7 @@ let model;
 let hoverStartTime = null;
 let currentEl = null;
 let interactTime = null;
-let hoverTimer = null;
-let interval = null;
+let hoverTime = null;
 const cursor = new Cursor('cursor');
 
 handTrack.startVideo(video).then(status => {
@@ -75,15 +72,16 @@ handTrack.startVideo(video).then(status => {
 function detectLoop() {
       model.detect(video).then(predictions => {
         predictions = predictions.filter(prediction => prediction.label !== 'face');
-        //If a hand was detected...
+        // If a hand was detected...
         if (predictions.length > 0) {
-          cursor.show();
-          interactTime = Date.now();
+          if (cursor.state == 'hidden') { cursor.show(); }
           adjustCursor(predictions[0])
+          interactTime = Date.now(); 
           handleInteractions(predictions[0].label);
         }
+        // No hand detected.
         else {
-          if (Date.now() - interactTime >= 3000) {
+          if (Date.now() - interactTime >= 3000) { // Time without hand detection 
             cursor.hide();
           }
         }
@@ -112,20 +110,18 @@ function handleInteractions(label) {
   
   // If the cursor goes over a new element...
   if (newEl !== currentEl) {
+    if (hoverTime != 0) { hoverTime = 0; } // Reset hoverTime used for clicks.
     
     //If you just left a selection-button, dispatch mouseout event
     if (currentEl && currentEl.classList.contains('selection-button')) {
-      if (!cursor.state == 'hidden') {
-        cursor.setState('default');
-      }
+      cursor.setState('default');
       currentEl.dispatchEvent(new MouseEvent('mouseout', {
         bubbles: true,
         cancelable: true,
         view: window
       }));
     }
-    
-    // If you enter a selection-button, dispatch mouseover event
+    //If you enter a selection-button, dispatch mouseover event
     if (newEl && newEl.classList.contains('selection-button')) {
       cursor.setState('pointing');
       newEl.dispatchEvent(new MouseEvent('mouseover', {
@@ -139,14 +135,23 @@ function handleInteractions(label) {
   }
   // If the cursor is on the same element...
   else {
-    console.log([currentEl, label]);
     // ...and that element is the same button with a closed hand, dispatch click event
-    if (currentEl && currentEl.classList.contains('selection-button' && label == 'closed')) {
-      currentEl.dispatchEvent(new MouseEvent('click', {
-        bubbles: true,
-        cancleable: true,
-        view: window
-      }));
+    if (currentEl && currentEl.classList.contains('selection-button') && label == 'closed') {
+      if (hoverTime == 0) {
+        hoverTime = Date.now();
+      }
+      else {
+        if (Date.now() - hoverTime >= 500) {
+          currentEl.dispatchEvent(new MouseEvent('click', {
+            bubbles: true,
+            cancleable: true,
+            view: window
+          }));
+        }
+      }
+    }
+    else {
+      if (hoverTime != 0) { hoverTime = 0; }  
     }
   }
   
