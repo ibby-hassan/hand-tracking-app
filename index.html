@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width-device-width, initial-scale=1.0" />
+    <title>Mobile HCI - Gesture Detection</title>
+    <link rel="stylesheet" href="index.css" />
+    
+    <script>
+      document.addEventListener('mousemove', function(event) {
+        const cursor = document.getElementById('cursor');
+        cursor.style.left = event.clientX + 'px';
+        cursor.style.top = event.clientY + 'px';
+      });
+    </script>
+  </head>
+
+  <body>
+    <script src="https://cdn.jsdelivr.net/npm/handtrackjs@latest/dist/handtrack.min.js"></script>
+    <video id="video" playsinline autoplay muted></video>
+    <script src="script.js" defer></script>
+
+    <div id="cursor"></div>
+    
+    <div id="button-section">
+      <button class="selection-button">Option 1</button>
+      <button class="selection-button">Option 2</button>
+      <button class="selection-button">Option 3</button>
+      <button class="selection-button">Option 4</button>
+      <button class="selection-button">Option 5</button>
+      <button class="selection-button">Option 6</button>
+    </div>
+
+  </body>
+</html>
