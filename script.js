@@ -56,7 +56,6 @@ let model;
 let hoverStartTime = null;
 let currentEl = null;
 let interactTime = null;
-let hoverTime = null;
 const cursor = new Cursor('cursor');
 
 handTrack.startVideo(video).then(status => {
@@ -64,6 +63,7 @@ handTrack.startVideo(video).then(status => {
     console.log('Video started.');
     handTrack.load(defaultParams).then(lmodel => {
       model = lmodel;
+      activateLoadingMessage()
       detectLoop();
     });
   }
@@ -104,16 +104,16 @@ function adjustCursor(hand) {
   cursor.setPosition((centerX * scaleX), (centerY * scaleY));
 }
 
+/* RESPONSIBLE FOR DISPATCHING NEW EVENTS */
 function handleInteractions(label) {
   const {x, y} = cursor.getCentre();
   const newEl = document.elementFromPoint(x,y);
   
   // If the cursor goes over a new element...
   if (newEl !== currentEl) {
-    if (hoverTime != 0) { hoverTime = 0; } // Reset hoverTime used for clicks.
     
     //If you just left a selection-button, dispatch mouseout event
-    if (currentEl && currentEl.classList.contains('selection-button')) {
+    if (currentEl && currentEl.classList.contains('clickable')) {
       cursor.setState('default');
       currentEl.dispatchEvent(new MouseEvent('mouseout', {
         bubbles: true,
@@ -122,7 +122,7 @@ function handleInteractions(label) {
       }));
     }
     //If you enter a selection-button, dispatch mouseover event
-    if (newEl && newEl.classList.contains('selection-button')) {
+    if (newEl && newEl.classList.contains('clickable')) {
       cursor.setState('pointing');
       newEl.dispatchEvent(new MouseEvent('mouseover', {
         bubbles: true,
@@ -136,27 +136,27 @@ function handleInteractions(label) {
   // If the cursor is on the same element...
   else {
     // ...and that element is the same button with a closed hand, dispatch click event
-    if (currentEl && currentEl.classList.contains('selection-button') && label == 'closed') {
-      if (hoverTime == 0) {
-        hoverTime = Date.now();
-      }
-      else {
-        if (Date.now() - hoverTime >= 500) {
-          currentEl.dispatchEvent(new MouseEvent('click', {
+    if (currentEl && (currentEl.classList.contains('clickable')) && label == 'closed') {
+      currentEl.dispatchEvent(new MouseEvent('click', {
             bubbles: true,
             cancleable: true,
             view: window
           }));
-        }
-      }
-    }
-    else {
-      if (hoverTime != 0) { hoverTime = 0; }  
     }
   }
   
 }
 
+function activateLoadingMessage() {
+  const loadingMessage = document.getElementById('loading-message');
+  const activeMessage = document.getElementById('active-message');
+  
+  loadingMessage.style.display = 'none';
+  activeMessage.style.display = 'block';
+}
+
+/* EVENTS */ 
+const currentSelection = document.getElementById('current-selection')
 document.querySelectorAll('.selection-button').forEach(button => {
   //onmouseover:
   button.addEventListener('mouseover', () => {
@@ -169,6 +169,15 @@ document.querySelectorAll('.selection-button').forEach(button => {
   });
   //onclick
   button.addEventListener('click', () => {
-    alert("Click registered!");
+    currentSelection.innerHTML = "Current Selection: " + button.id;
+  });
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  const popup = document.getElementById('popup');
+  const continueButton = document.getElementById('continue');
+
+  continueButton.addEventListener('click', () => {
+    popup.style.display = 'none';
   });
 });
