@@ -2,17 +2,9 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width-device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Mobile HCI - Gesture Detection</title>
     <link rel="stylesheet" href="index.css" />
-    
-    <script>
-      document.addEventListener('mousemove', function(event) {
-        const cursor = document.getElementById('cursor');
-        cursor.style.left = event.clientX + 'px';
-        cursor.style.top = event.clientY + 'px';
-      });
-    </script>
   </head>
 
   <body>
@@ -22,14 +14,34 @@
 
     <div id="cursor"></div>
     
-    <div id="button-section">
-      <button class="selection-button">Option 1</button>
-      <button class="selection-button">Option 2</button>
-      <button class="selection-button">Option 3</button>
-      <button class="selection-button">Option 4</button>
-      <button class="selection-button">Option 5</button>
-      <button class="selection-button">Option 6</button>
-    </div>
+    <h1 id="current-selection">Current Selection: NONE</h1>
+    
+    
+    <section id="button-section">
+      <button id="One" class="selection-button clickable">One</button>
+      <button id="Two" class="selection-button clickable">Two</button>
+      <button id="Three" class="selection-button clickable">Three</button>
+      <button id="Four" class="selection-button clickable">Four</button>
+      <button id="Five" class="selection-button clickable">Five</button>
+      <button id="Six" class="selection-button clickable">Six</button>
+    </section>
+    
+     <section id="popup">
+        <div id="popup-box">
+          <h2>Welcome to Motion Mouse</h2>
+          <h3 id="loading-message">Status: LOADING</h3>
+          <h3 id="active-message">Status: ACTIVE</h3>
+          <p>
+            This system utilises your front camera to allow the control of a cursor touchlessly using the motion of your hand.<br>
+            <br>
+            You will see video feedback in the background. Hold your hand to the camera until the identifies it and moves to your location.<br>
+            Holding a fist will register clicks.<br>
+            <br>
+            For best results, use slow motions and keep an OPEN hand. Stand a step back from the device. Hold your arm outstreches and palm facing the camera. Keep your other hand down.<br>
+          </p>
+          <button id="continue" class="clickable">Continue</button>
+        </div>
+      </section>
 
   </body>
 </html>
